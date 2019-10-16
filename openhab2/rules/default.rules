@@ -1,0 +1,97 @@
+rule "Vitrine"
+when
+  Item Vitrine433 received command
+then
+  if(receivedCommand == ON)  Remote_Send_Args.sendCommand("-d Funk2A -s on")
+  else Remote_Send_Args.sendCommand("-d Funk2A -s off")
+
+  Remote_Send.sendCommand(ON)
+
+  // wait for the command to complete
+  while(Remote_Send.state != ON) Thread::sleep(100)
+
+  logInfo("Power_Plug", "Resuts are: " + Remote_Send_Out.state)
+end
+
+rule "WohnzimmerGr"
+when
+  Item WohnzimmerGr received command
+then
+  if(receivedCommand == ON)  Remote_Send_Args.sendCommand("-d Funk1A -s on")
+  else Remote_Send_Args.sendCommand("-d Funk1A -s off")
+
+  Remote_Send.sendCommand(ON)
+
+  // wait for the command to complete
+  while(Remote_Send.state != ON) Thread::sleep(100)
+
+  logInfo("Power_Plug", "Resuts are: " + Remote_Send_Out.state)
+end
+
+rule "WohnzimmerKl"
+when
+  Item WohnzimmerKl received command
+then
+  if(receivedCommand == ON)  Remote_Send_Args.sendCommand("-d Funk3A -s on")
+  else Remote_Send_Args.sendCommand("-d Funk3A -s off")
+
+  Remote_Send.sendCommand(ON)
+
+  // wait for the command to complete
+  while(Remote_Send.state != ON) Thread::sleep(100)
+
+  logInfo("Power_Plug", "Resuts are: " + Remote_Send_Out.state)
+end
+
+rule "Weinregal"
+when
+  Item Weinregal received command
+then
+  if(receivedCommand == ON)  Remote_Send_Args.sendCommand("-d Funk1B -s on")
+  else Remote_Send_Args.sendCommand("-d Funk1B -s off")
+
+  Remote_Send.sendCommand(ON)
+
+  // wait for the command to complete
+  while(Remote_Send.state != ON) Thread::sleep(100)
+
+  logInfo("Power_Plug", "Resuts are: " + Remote_Send_Out.state)
+end
+rule "Balkon"
+when
+  Item Balkon received command
+then
+  if(receivedCommand == ON)  Remote_Send_Args.sendCommand("-d Funk2B -s on")
+  else Remote_Send_Args.sendCommand("-d Funk2B -s off")
+
+  Remote_Send.sendCommand(ON)
+
+  // wait for the command to complete
+  while(Remote_Send.state != ON) Thread::sleep(100)
+
+  logInfo("Power_Plug", "Resuts are: " + Remote_Send_Out.state)
+end
+
+
+//Switch on Balkon at sunset and 1h before sunrise
+rule "sunrise-sunset"
+when
+ //Channel 'astro:sun:home:rise#event' triggered START 
+ Time cron "8 * * * * ?"
+then
+ val late = new DateTime(now.toString).plusHours(2)
+ val now = new DateTime(now.toString)
+ val sunrise = new DateTime(Sunrise_Time.state.toString)
+ val sunset = new DateTime(Sunset_Time.state.toString)
+
+ if( (sunrise < now) && (sunrise < late) && (Balkon.state != ON)) {
+  logInfo("Switch Balkon", "on (sunrise) at "+ now.toString)
+  Balkon.sendCommand(ON)
+ } else if ( ( sunset < now) && (sunset < late.plusHours(2)) && (Balkon.state != ON)){
+  logInfo("Switch Balkon", " on (sunset) at "+ now.toString)
+  Balkon.sendCommand(ON)
+ } else if( (sunset > late.plusHours(2)) && (sunrise > now) && (Balkon.state != OFF)) {
+  logInfo("Switch Balkon", "off ")
+  Balkon.sendCommand(OFF)
+ }
+end

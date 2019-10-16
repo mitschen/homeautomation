@@ -1,0 +1,95 @@
+{
+	"devices": {
+		"Funk1A": {
+			"protocol": [ "clarus_switch" ],
+			"id": [{
+				"id": "A3",
+				"unit": 16
+			}],
+			"state": "off"
+		},
+		"Funk2A": {
+			"protocol": [ "clarus_switch" ],
+			"id": [{
+				"id": "B3",
+				"unit": 16
+			}],
+			"state": "off"
+		},
+		"Funk3A": {
+			"protocol": [ "clarus_switch" ],
+			"id": [{
+				"id": "C7",
+				"unit": 16
+			}],
+			"state": "off"
+		},
+		"Funk1B": {
+			"protocol": [ "clarus_switch" ],
+			"id": [{
+				"id": "A3",
+				"unit": 34
+			}],
+			"state": "off"
+		},
+		"Funk2B": {
+			"protocol": [ "clarus_switch" ],
+			"id": [{
+				"id": "B3",
+				"unit": 34
+			}],
+			"state": "off"
+		},
+		"Funk3B": {
+			"protocol": [ "clarus_switch" ],
+			"id": [{
+				"id": "C7",
+				"unit": 34
+			}],
+			"state": "off"
+		}
+	},
+	"rules": {},
+	"gui": {},
+	"settings": {
+		"log-level": 6,
+		"pid-file": "/var/run/pilight.pid",
+		"log-file": "/var/log/pilight.log",
+		"standalone": 0,
+		"webserver-enable": 0,
+		"webserver-root": "/usr/local/share/pilight/webgui",
+		"webserver-http-port": 5001,
+		"webserver-https-port": 5002,
+		"webserver-cache": 1,
+		"whitelist": "",
+		"gpio-platform": "raspberrypizero"
+	},
+	"hardware": {
+		"433gpio": {
+			"sender": 0,
+			"receiver": 2
+		}
+	},
+	"registry": {
+		"webserver": {
+			"ssl": {
+				"certificate": {
+					"location": "/etc/pilight/pilight.pem"
+				}
+			}
+		},
+		"pilight": {
+			"version": {
+				"current": "8.1.5"
+			}
+		},
+		"hardware": {
+			"RF433": {
+				"mingaplen": 4420,
+				"maxgaplen": 72900,
+				"minrawlen": 26,
+				"maxrawlen": 400
+			}
+		}
+	}
+}
