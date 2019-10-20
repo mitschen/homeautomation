@@ -1,3 +1,6 @@
+//some global states
+var DateTime userSwitchOff_Balkon = new DateTime(0)
+
 rule "Vitrine"
 when
   Item Vitrine433 received command
@@ -9,8 +12,7 @@ then
 
   // wait for the command to complete
   while(Remote_Send.state != ON) Thread::sleep(100)
-
-  logInfo("Power_Plug", "Resuts are: " + Remote_Send_Out.state)
+  logInfo("Power_Plug", "Vitrine  "+Vitrine433.state + Remote_Send_Out.state)
 end
 
 rule "WohnzimmerGr"
@@ -21,11 +23,8 @@ then
   else Remote_Send_Args.sendCommand("-d Funk1A -s off")
 
   Remote_Send.sendCommand(ON)
-
-  // wait for the command to complete
   while(Remote_Send.state != ON) Thread::sleep(100)
-
-  logInfo("Power_Plug", "Resuts are: " + Remote_Send_Out.state)
+  logInfo("Power_Plug", "WohnzimmerGr  "+WohnzimmerGr.state + Remote_Send_Out.state)
 end
 
 rule "WohnzimmerKl"
@@ -36,11 +35,8 @@ then
   else Remote_Send_Args.sendCommand("-d Funk3A -s off")
 
   Remote_Send.sendCommand(ON)
-
-  // wait for the command to complete
   while(Remote_Send.state != ON) Thread::sleep(100)
-
-  logInfo("Power_Plug", "Resuts are: " + Remote_Send_Out.state)
+  logInfo("Power_Plug", "WohnzimmerKl  "+WohnzimmerKl.state + Remote_Send_Out.state)
 end
 
 rule "Weinregal"
@@ -51,25 +47,27 @@ then
   else Remote_Send_Args.sendCommand("-d Funk1B -s off")
 
   Remote_Send.sendCommand(ON)
-
-  // wait for the command to complete
   while(Remote_Send.state != ON) Thread::sleep(100)
+  logInfo("Power_Plug", "Weinregal  "+Weinregal.state + Remote_Send_Out.state)
 
-  logInfo("Power_Plug", "Resuts are: " + Remote_Send_Out.state)
 end
 rule "Balkon"
 when
   Item Balkon received command
 then
-  if(receivedCommand == ON)  Remote_Send_Args.sendCommand("-d Funk2B -s on")
-  else Remote_Send_Args.sendCommand("-d Funk2B -s off")
+  val now = new DateTime(now.toString)
+  if(receivedCommand == ON){
+   Remote_Send_Args.sendCommand("-d Funk2B -s on")
+   userSwitchOff_Balkon = now
+  } else {
+    Remote_Send_Args.sendCommand("-d Funk2B -s off")
+    userSwitchOff_Balkon = now.plusHours(4)
+    logInfo("Switch Balkon", "blocking period until"+userSwitchOff_Balkon)
+  }
 
   Remote_Send.sendCommand(ON)
-
-  // wait for the command to complete
   while(Remote_Send.state != ON) Thread::sleep(100)
-
-  logInfo("Power_Plug", "Resuts are: " + Remote_Send_Out.state)
+  logInfo("Power_Plug", "Balkon  "+Balkon.state + Remote_Send_Out.state)
 end
 
 
@@ -79,19 +77,38 @@ when
  //Channel 'astro:sun:home:rise#event' triggered START 
  Time cron "8 * * * * ?"
 then
- val late = new DateTime(now.toString).plusHours(2)
+ val hoursBeforeSunrise = 2
+ val hoursAfterSunset = 3
  val now = new DateTime(now.toString)
  val sunrise = new DateTime(Sunrise_Time.state.toString)
  val sunset = new DateTime(Sunset_Time.state.toString)
+ var switchOn = true
 
- if( (sunrise < now) && (sunrise < late) && (Balkon.state != ON)) {
+// switch on if now is between [sunrise-2:sunrise]
+if(now > userSwitchOff_Balkon){
+ if( (Balkon.state != ON) 
+  && (sunrise < now.plusHours(hoursBeforeSunrise)) 
+  && (now < sunrise) ) {
   logInfo("Switch Balkon", "on (sunrise) at "+ now.toString)
-  Balkon.sendCommand(ON)
- } else if ( ( sunset < now) && (sunset < late.plusHours(2)) && (Balkon.state != ON)){
+  switchOn = true
+ // switch on if now is between [sunset: sunset+3]
+ } else if ( (Balkon.state != ON) 
+  && (sunset < now) 
+  && (now < sunset.plusHours(hoursAfterSunset)) ){
   logInfo("Switch Balkon", " on (sunset) at "+ now.toString)
+  switchOn = true
+ //switch off between 
+ } else if( Balkon.state != OFF) {
+  logInfo("Switch Balkon", "off at "+now.toString)
+  switchOn = false
+ }
+ if((switchOn == true) && (Balkon.state == OFF)){
   Balkon.sendCommand(ON)
- } else if( (sunset > late.plusHours(2)) && (sunrise > now) && (Balkon.state != OFF)) {
-  logInfo("Switch Balkon", "off ")
+ } else if(Balkon.state == ON){
   Balkon.sendCommand(OFF)
  }
+}
+
+//logInfo("Times Balkon", "\nnow="+now+"\nsunrise="+sunrise+"\nsunset="+sunset+"\nBlocking="+userSwitchOff_Balkon+"\nState="+Balkon.state)
+
 end
