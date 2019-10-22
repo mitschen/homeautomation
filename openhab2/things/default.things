@@ -1,4 +1,5 @@
 Thing exec:command:remote-send [command="/usr/local/bin/pilight-control %2$s", autorun=true]
+Thing exec:command:reinit-send [command="/usr/bin/sudo systemctl restart pilight", autorun=true]
 
 Thing astro:sun:home [ geolocation="48.148818,11.431371", interval=60]
 Thing astro:moon:home [ geolocation="48.148818,11.431371", interval=60]

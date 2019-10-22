@@ -13,6 +13,7 @@ then
   // wait for the command to complete
   while(Remote_Send.state != ON) Thread::sleep(100)
   logInfo("Power_Plug", "Vitrine  "+Vitrine433.state + Remote_Send_Out.state)
+  Reinit_Send.sendCommand(ON)
 end
 
 rule "WohnzimmerGr"
@@ -25,6 +26,7 @@ then
   Remote_Send.sendCommand(ON)
   while(Remote_Send.state != ON) Thread::sleep(100)
   logInfo("Power_Plug", "WohnzimmerGr  "+WohnzimmerGr.state + Remote_Send_Out.state)
+  Reinit_Send.sendCommand(ON)
 end
 
 rule "WohnzimmerKl"
@@ -37,6 +39,7 @@ then
   Remote_Send.sendCommand(ON)
   while(Remote_Send.state != ON) Thread::sleep(100)
   logInfo("Power_Plug", "WohnzimmerKl  "+WohnzimmerKl.state + Remote_Send_Out.state)
+  Reinit_Send.sendCommand(ON)
 end
 
 rule "Weinregal"
@@ -49,7 +52,7 @@ then
   Remote_Send.sendCommand(ON)
   while(Remote_Send.state != ON) Thread::sleep(100)
   logInfo("Power_Plug", "Weinregal  "+Weinregal.state + Remote_Send_Out.state)
-
+  Reinit_Send.sendCommand(ON)
 end
 rule "Balkon"
 when
@@ -70,6 +73,17 @@ then
   logInfo("Power_Plug", "Balkon  "+Balkon.state + Remote_Send_Out.state)
 end
 
+rule "Reinit"
+when
+  Item Reinit received command
+then
+  //Remote_Send_Args.sendCommand("-d Funk2B -s on")
+  Reinit_Send.sendCommand(ON)
+  logInfo("Reinit_Plug", "Reinit start")
+  while(Remote_Send.state != ON) Thread::sleep(100)
+  logInfo("Reinit_Plug", "Reinit  "+Reinit.state + Remote_Send_Out.state)
+end
+
 
 //Switch on Balkon at sunset and 1h before sunrise
 rule "sunrise-sunset"
@@ -83,6 +97,7 @@ then
  val sunrise = new DateTime(Sunrise_Time.state.toString)
  val sunset = new DateTime(Sunset_Time.state.toString)
  var switchOn = true
+// logInfo("test", "test"+userSwitchOff_Balkon)
 
 // switch on if now is between [sunrise-2:sunrise]
 if(now > userSwitchOff_Balkon){
@@ -98,17 +113,21 @@ if(now > userSwitchOff_Balkon){
   logInfo("Switch Balkon", " on (sunset) at "+ now.toString)
   switchOn = true
  //switch off between 
- } else if( Balkon.state != OFF) {
+ } else if( (Balkon.state != OFF)
+  && ((now > sunset.plusHours(hoursAfterSunset))
+  || (now < sunrise)) ) {
   logInfo("Switch Balkon", "off at "+now.toString)
   switchOn = false
  }
  if((switchOn == true) && (Balkon.state == OFF)){
   Balkon.sendCommand(ON)
- } else if(Balkon.state == ON){
+ } else if( (switchOn == false) && (Balkon.state == ON) ){
   Balkon.sendCommand(OFF)
  }
 }
 
-//logInfo("Times Balkon", "\nnow="+now+"\nsunrise="+sunrise+"\nsunset="+sunset+"\nBlocking="+userSwitchOff_Balkon+"\nState="+Balkon.state)
+//logInfo("Times Balkon", "\nnow="+now+"\nsunrise="+sunrise
+//                       +"\nsunset="+sunset+"\nBlocking="+userSwitchOff_Balkon
+//                       +"\nState="+Balkon.state)
 
 end

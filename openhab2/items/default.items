@@ -6,12 +6,13 @@ Switch WohnzimmerGr "WohnzimmerGross" ["Switchable"]
 Switch WohnzimmerKl "WohnzimmerKlein" ["Switchable"]
 Switch Weinregal "Weinregal" ["Switchable"]
 Switch Balkon "Balkon" ["Switchable"]
-
+Switch Reinit "Reinit" ["Switchable"]
 
 
 DateTime Sunrise_Time "Sonnenaufgang [%1$tH:%1$tM]" {channel="astro:sun:home:rise#start"}
 DateTime Sunset_Time "Sonnenuntergang [%1$tH:%1$tM]" {channel="astro:sun:home:set#start"}
 
+Switch Reinit_Send {channel="exec:command:reinit-send:run"}
 Switch Remote_Send {channel="exec:command:remote-send:run"}
 String Remote_Send_Args { channel="exec:command:remote-send:input" }
 String Remote_Send_Out { channel="exec:command:remote-send:output" }
