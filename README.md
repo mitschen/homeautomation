@@ -67,6 +67,7 @@ go to the Paper UI and add the following bindings
     * get the UUID from your pi: `cat /var/lib/openhab2/uuid`
     * get the secret for your pi: `cat /var/lib/openhab2/openhabcloud/secret`
     * enter your [openhab account](https://myopenhab.org/account) and add the credentials
+* in your Alexa App search for the OpenHab2 skill and install it. You need to login with your username and password.
 * now you should be able to find the devices via Alexa App
 ## TODO
 * List the bindings needed for openhab2
